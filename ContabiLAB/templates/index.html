@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora HP12C</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculadora HP12C - Valor Futuro (FV)</h1>
+        <form method="POST">
+            <label for="pv">Valor Presente (PV):</label>
+            <input type="number" step="0.01" name="pv" required>
+
+            <label for="i">Taxa de Juros Anual (%):</label>
+            <input type="number" step="0.01" name="i" required>
+
+            <label for="n">Número de Períodos (n):</label>
+            <input type="number" name="n" required>
+
+            <button type="submit">Calcular FV</button>
+        </form>
+
+        {% if resultado is not none %}
+        <div class="resultado">
+            <h2>Resultado: R$ {{ resultado | round(2) }}</h2>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
