@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Simulador HP12C - Contabilab</title>
+    <title>Simulador HP12C - ContabiLAB</title>
     <style>
         body {
             margin: 0;
@@ -14,6 +14,7 @@
             background: linear-gradient(to right, #e0eafc, #cfdef3);
         }
 
+        /* Botão hamburger */
         #openSidebarBtn {
             position: fixed;
             top: 15px;
@@ -42,6 +43,7 @@
             background-color: #3498db;
         }
 
+        /* Sidebar */
         nav.sidebar {
             position: fixed;
             top: 0;
@@ -113,8 +115,6 @@
         }
 
         form {
-            max-width: 400px;
-            margin-top: 20px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -158,12 +158,14 @@
 
 <body>
 
+    <!-- Botão de menu -->
     <button id="openSidebarBtn" aria-label="Abrir menu" title="Abrir menu">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
     </button>
 
+    <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <button id="closeSidebarBtn" aria-label="Fechar menu" title="Fechar menu">&times;</button>
         <h2>ContabiLAB</h2>
@@ -171,6 +173,7 @@
         <a href="/calculadora" class="{% if request.path == '/calculadora' %}active{% endif %}">Simulador HP12C</a>
     </nav>
 
+    <!-- Conteúdo principal -->
     <main class="content" id="content">
         <h1>Simulador HP12C</h1>
 
@@ -204,11 +207,12 @@
 
         {% if resultado %}
         <div class="resultado">
-            <strong>Resultado:</strong> {{ resultado }}
+            <strong>Resultado:</strong> {{ resultado|safe }}
         </div>
         {% endif %}
     </main>
 
+    <!-- Scripts -->
     <script>
         // Sidebar
         const sidebar = document.getElementById('sidebar');
@@ -233,7 +237,7 @@
             }
         });
 
-        // Mostrar/ocultar campos conforme a seleção
+        // Mostrar campos necessários
         function updateInputs() {
             const calcWhat = document.getElementById('calc_what').value;
             const camposPorCalculo = {
@@ -265,7 +269,6 @@
 
         document.addEventListener('DOMContentLoaded', updateInputs);
     </script>
-
 </body>
 
 </html>
