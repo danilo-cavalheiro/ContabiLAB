@@ -4,125 +4,38 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Simulador HP12C - ContabiLAB</title>
+    <title>Simulador HP12C - Contabilab</title>
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            overflow-x: hidden;
             background: linear-gradient(to right, #e0eafc, #cfdef3);
+            padding: 20px;
         }
 
-        /* Botão hamburger */
-        #openSidebarBtn {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            width: 35px;
-            height: 28px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 1200;
-            padding: 0;
-        }
-
-        #openSidebarBtn .bar {
-            height: 4px;
-            width: 100%;
-            background-color: #2c3e50;
-            border-radius: 3px;
-            transition: background-color 0.3s;
-        }
-
-        #openSidebarBtn:hover .bar {
-            background-color: #3498db;
-        }
-
-        /* Sidebar */
-        nav.sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 0;
-            background: rgba(44, 62, 80, 0.95);
-            color: white;
-            overflow-x: hidden;
-            padding-top: 60px;
-            box-sizing: border-box;
-            transition: width 0.3s ease;
-            z-index: 1100;
-        }
-
-        nav.sidebar.open {
-            width: 100vw;
-        }
-
-        nav.sidebar h2 {
-            margin-top: 0;
-            margin-left: 20px;
-            margin-bottom: 20px;
-        }
-
-        nav.sidebar a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            transition: background-color 0.3s;
-            font-size: 18px;
-        }
-
-        nav.sidebar a:hover,
-        nav.sidebar a.active {
-            background-color: #3498db;
-        }
-
-        #closeSidebarBtn {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        main.content {
-            padding: 30px;
-            max-width: 400px;
-            margin: 80px auto 60px;
+        main {
+            max-width: 500px;
+            margin: 0 auto;
             background-color: white;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: filter 0.3s ease;
         }
 
-        main.content.dimmed {
-            filter: brightness(0.6);
-            pointer-events: none;
-            user-select: none;
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
         }
 
         form {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
         }
 
         label {
             font-weight: 600;
-            text-align: left;
         }
 
         input,
@@ -153,28 +66,21 @@
             color: #3c763d;
             font-size: 18px;
         }
+
+        #entrada-wrapper {
+            display: none;
+            flex-direction: column;
+        }
+
+        #entrada-checkbox-container {
+            display: none;
+            margin-bottom: -10px;
+        }
     </style>
 </head>
 
 <body>
-
-    <!-- Botão de menu -->
-    <button id="openSidebarBtn" aria-label="Abrir menu" title="Abrir menu">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-    </button>
-
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <button id="closeSidebarBtn" aria-label="Fechar menu" title="Fechar menu">&times;</button>
-        <h2>ContabiLAB</h2>
-        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Início</a>
-        <a href="/calculadora" class="{% if request.path == '/calculadora' %}active{% endif %}">Simulador HP12C</a>
-    </nav>
-
-    <!-- Conteúdo principal -->
-    <main class="content" id="content">
+    <main>
         <h1>Simulador HP12C</h1>
 
         <form method="POST">
@@ -186,6 +92,19 @@
                 <option value="i" {% if calc_what=='i' %}selected{% endif %}>Taxa de Juros (i)</option>
                 <option value="n" {% if calc_what=='n' %}selected{% endif %}>Períodos (n)</option>
             </select>
+
+            <div id="entrada-checkbox-container">
+                <label>
+                    <input type="checkbox" id="entrada-checkbox" name="possui_entrada" {% if possui_entrada %}checked{%
+                        endif %}>
+                    Possui valor de entrada
+                </label>
+            </div>
+
+            <div id="entrada-wrapper">
+                <label for="entrada">Valor de entrada:</label>
+                <input type="text" name="entrada" id="entrada" value="{{ entrada }}" placeholder="..." />
+            </div>
 
             <div id="label-pv"><label>PV:</label></div>
             <input type="text" name="pv" id="pv" value="{{ pv }}" placeholder="..." />
@@ -207,39 +126,18 @@
 
         {% if resultado %}
         <div class="resultado">
-            <strong>Resultado:</strong> {{ resultado|safe }}
+            <strong>Resultado:</strong> {{ resultado }}
         </div>
         {% endif %}
     </main>
 
-    <!-- Scripts -->
     <script>
-        // Sidebar
-        const sidebar = document.getElementById('sidebar');
-        const openBtn = document.getElementById('openSidebarBtn');
-        const closeBtn = document.getElementById('closeSidebarBtn');
-        const content = document.getElementById('content');
-
-        openBtn.addEventListener('click', () => {
-            sidebar.classList.add('open');
-            content.classList.add('dimmed');
-        });
-
-        closeBtn.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            content.classList.remove('dimmed');
-        });
-
-        content.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                content.classList.remove('dimmed');
-            }
-        });
-
-        // Mostrar campos necessários
         function updateInputs() {
             const calcWhat = document.getElementById('calc_what').value;
+            const checkboxContainer = document.getElementById('entrada-checkbox-container');
+            const entradaWrapper = document.getElementById('entrada-wrapper');
+            const checkbox = document.getElementById('entrada-checkbox');
+
             const camposPorCalculo = {
                 pv: ['fv', 'pmt', 'i', 'n'],
                 fv: ['pv', 'pmt', 'i', 'n'],
@@ -247,8 +145,8 @@
                 i: ['pv', 'fv', 'n'],
                 n: ['pv', 'fv', 'pmt', 'i']
             };
-            const todosCampos = ['pv', 'fv', 'pmt', 'i', 'n'];
 
+            const todosCampos = ['pv', 'fv', 'pmt', 'i', 'n'];
             todosCampos.forEach(field => {
                 const label = document.getElementById('label-' + field);
                 const input = document.getElementById(field);
@@ -265,9 +163,23 @@
                     input.value = '';
                 }
             });
+
+            // Mostrar/ocultar checkbox e campo de entrada
+            if (calcWhat === 'pv') {
+                checkboxContainer.style.display = 'none';
+                entradaWrapper.style.display = 'none';
+                checkbox.checked = false;
+            } else {
+                checkboxContainer.style.display = 'block';
+                entradaWrapper.style.display = checkbox.checked ? 'flex' : 'none';
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', updateInputs);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateInputs();
+            document.getElementById('entrada-checkbox').addEventListener('change', updateInputs);
+            document.getElementById('calc_what').addEventListener('change', updateInputs);
+        });
     </script>
 </body>
 

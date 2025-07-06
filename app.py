@@ -23,7 +23,7 @@ def format_brl(value, decimals=2):
     try:
         return locale.format_string(f"%.{decimals}f", value, grouping=True)
     except:
-        return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{value:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 @app.route("/")
@@ -34,20 +34,19 @@ def home():
 @app.route("/calculadora", methods=["GET", "POST"])
 def calculadora():
     resultado = None
-    pv = fv = pmt = i = n = 0.0
+    pv = fv = pmt = i = n = entrada = 0.0
     calc_what = "pv"
+    tem_entrada = False
 
     if request.method == "POST":
         calc_what = request.form.get('calc_what', 'pv')
-
         pv = to_float_zero(request.form.get('pv', ''))
         fv = to_float_zero(request.form.get('fv', ''))
         pmt = to_float_zero(request.form.get('pmt', ''))
         i = to_float_zero(request.form.get('i', '')) / 100
         n = to_float_zero(request.form.get('n', ''))
-
-        if i is None:
-            i = 0.0
+        entrada = to_float_zero(request.form.get('entrada', ''))
+        tem_entrada = 'tem_entrada' in request.form
 
         try:
             if calc_what == "pv":
@@ -59,23 +58,26 @@ def calculadora():
                 resultado = f"Valor Presente (PV): R$ {format_brl(resultado_valor)}"
 
             elif calc_what == "fv":
+                base = pv + entrada if tem_entrada else pv
                 if i != 0:
-                    resultado_valor = pv * \
+                    resultado_valor = base * \
                         ((1 + i) ** n) + pmt * (((1 + i) ** n - 1) / i)
                 else:
-                    resultado_valor = pv + pmt * n
+                    resultado_valor = base + pmt * n
                 resultado = f"Valor Futuro (FV): R$ {format_brl(resultado_valor)}"
 
             elif calc_what == "pmt":
+                base = pv + entrada if tem_entrada else pv
                 if i == 0:
-                    resultado_valor = (fv - pv) / n if n != 0 else 0.0
+                    resultado_valor = (fv - base) / n if n != 0 else 0.0
                 else:
-                    resultado_valor = (fv - pv * ((1 + i) ** n)
-                                       ) * i / (((1 + i) ** n) - 1)
+                    resultado_valor = (
+                        fv - base * ((1 + i) ** n)) * i / (((1 + i) ** n) - 1)
                 resultado = f"Pagamento (PMT): R$ {format_brl(resultado_valor)}"
 
             elif calc_what == "n":
-                A = pv * i + pmt
+                base = pv + entrada if tem_entrada else pv
+                A = base * i + pmt
                 B = fv * i + pmt
                 if A == 0 or B <= 0 or i <= 0:
                     resultado = "Não foi possível calcular n com os valores fornecidos."
@@ -84,14 +86,15 @@ def calculadora():
                     resultado = f"Períodos (n): {format_brl(n_val, 4)}"
 
             elif calc_what == "i":
+                base = pv + entrada if tem_entrada else pv
                 guess = 0.01
                 for _ in range(10000):
                     try:
                         if guess == 0:
-                            fvi = pv + pmt * n
+                            fvi = base + pmt * n
                         else:
-                            fvi = pv * ((1 + guess) ** n) + pmt * \
-                                (((1 + guess) ** n - 1) / guess)
+                            fvi = base * ((1 + guess) ** n) + \
+                                pmt * (((1 + guess) ** n - 1) / guess)
                         diff = fv - fvi
                         if abs(diff) < 0.0001:
                             break
@@ -121,6 +124,8 @@ def calculadora():
                            pmt=to_str_or_blank(pmt),
                            i=to_str_or_blank(i * 100),
                            n=to_str_or_blank(n),
+                           entrada=to_str_or_blank(entrada),
+                           tem_entrada=tem_entrada,
                            calc_what=calc_what)
 
 
