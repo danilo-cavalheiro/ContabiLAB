@@ -1,34 +1,144 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Calculadora HP12C</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8" />
+    <title>Calculadora Financeira</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            text-align: left;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input,
+        select,
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input::placeholder {
+            color: #bbb;
+            font-style: italic;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 700;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            background-color: #dff0d8;
+            padding: 15px;
+            border-radius: 10px;
+            color: #3c763d;
+            font-size: 20px;
+            font-weight: 700;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Calculadora HP12C - Valor Futuro (FV)</h1>
-        <form method="POST">
-            <label for="pv">Valor Presente (PV):</label>
-            <input type="number" step="0.01" name="pv" required>
+        <h1>Calculadora Financeira</h1>
 
-            <label for="i">Taxa de Juros Anual (%):</label>
-            <input type="number" step="0.01" name="i" required>
-
-            <label for="n">Número de Períodos (n):</label>
-            <input type="number" name="n" required>
-
-            <button type="submit">Calcular FV</button>
-        </form>
-
-        {% if resultado is not none %}
-        <div class="resultado">
-            <h2>Resultado: R$ {{ resultado | round(2) }}</h2>
-        </div>
+        {% if resultado %}
+        <div class="resultado">{{ resultado }}</div>
         {% endif %}
+
+        <form method="POST" id="calcForm">
+            <label for="calc_what">Quero calcular:</label>
+            <select id="calc_what" name="calc_what" onchange="updateInputs()">
+                <option value="pv" {% if calc_what=='pv' %}selected{% endif %}>Valor Presente (PV)</option>
+                <option value="fv" {% if calc_what=='fv' %}selected{% endif %}>Valor Futuro (FV)</option>
+                <option value="pmt" {% if calc_what=='pmt' %}selected{% endif %}>Pagamento (PMT)</option>
+                <option value="i" {% if calc_what=='i' %}selected{% endif %}>Taxa de Juros (i)</option>
+                <option value="n" {% if calc_what=='n' %}selected{% endif %}>Número de Períodos (n)</option>
+            </select>
+
+            <div>
+                <label id="label-pv" for="pv">Valor Presente (PV):</label>
+                <input type="text" id="pv" name="pv" value="{{ pv }}" placeholder="..." />
+
+                <label id="label-fv" for="fv">Valor Futuro (FV):</label>
+                <input type="text" id="fv" name="fv" value="{{ fv }}" placeholder="..." />
+
+                <label id="label-pmt" for="pmt">Pagamento (PMT):</label>
+                <input type="text" id="pmt" name="pmt" value="{{ pmt }}" placeholder="..." />
+
+                <label id="label-i" for="i">Taxa de Juros (%) (i):</label>
+                <input type="text" id="i" name="i" value="{{ i }}" placeholder="..." />
+
+                <label id="label-n" for="n">Número de Períodos (n):</label>
+                <input type="text" id="n" name="n" value="{{ n }}" placeholder="..." />
+            </div>
+
+            <button type="submit">Calcular</button>
+        </form>
     </div>
+
+    <script>
+        function updateInputs() {
+            const calcWhat = document.getElementById('calc_what').value;
+            const fields = ['pv', 'fv', 'pmt', 'i', 'n'];
+
+            fields.forEach(field => {
+                const label = document.getElementById('label-' + field);
+                const input = document.getElementById(field);
+                if (field === calcWhat) {
+                    label.style.display = 'none';
+                    input.style.display = 'none';
+                    input.value = '';
+                } else {
+                    label.style.display = 'block';
+                    input.style.display = 'block';
+                }
+            });
+        }
+
+        window.onload = updateInputs;
+    </script>
 </body>
 
 </html>
