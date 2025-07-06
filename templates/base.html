@@ -4,25 +4,55 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Contabilab{% endblock %}</title>
+    <title>Contabilab</title>
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
             height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Botão para abrir sidebar */
+        #openSidebarBtn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 1100;
         }
 
         nav.sidebar {
-            background: #2c3e50;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 0;
+            /* Inicialmente fechada */
+            background: rgba(44, 62, 80, 0.95);
+            /* cor escura com opacidade */
             color: white;
-            width: 220px;
-            padding: 20px;
+            overflow-x: hidden;
+            padding-top: 60px;
+            /* espaço para botão */
             box-sizing: border-box;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        nav.sidebar.open {
+            width: 100vw;
+            /* cobre a tela inteira */
         }
 
         nav.sidebar h2 {
             margin-top: 0;
+            margin-left: 20px;
             margin-bottom: 20px;
         }
 
@@ -30,10 +60,11 @@
             display: block;
             color: white;
             text-decoration: none;
-            padding: 12px 10px;
+            padding: 12px 20px;
             border-radius: 6px;
             margin-bottom: 10px;
             transition: background-color 0.3s;
+            font-size: 18px;
         }
 
         nav.sidebar a:hover,
@@ -42,23 +73,98 @@
         }
 
         main.content {
-            flex-grow: 1;
             padding: 30px;
-            overflow-y: auto;
             background: linear-gradient(to right, #e0eafc, #cfdef3);
+            transition: filter 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Ao abrir sidebar, deixa conteúdo com filtro escurecido */
+        main.content.dimmed {
+            filter: brightness(0.6);
+            pointer-events: none;
+            /* opcional para evitar interação */
+            user-select: none;
+        }
+
+        /* Botão para fechar dentro da sidebar */
+        #closeSidebarBtn {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @media (min-width: 768px) {
+
+            /* Em telas maiores, pode manter sidebar fixa e visível */
+            nav.sidebar {
+                position: relative;
+                width: 220px !important;
+                height: auto;
+                background: #2c3e50;
+                padding-top: 20px;
+                transition: none;
+            }
+
+            #openSidebarBtn,
+            #closeSidebarBtn {
+                display: none;
+            }
+
+            main.content {
+                filter: none !important;
+                pointer-events: auto !important;
+                user-select: auto !important;
+                margin-left: 220px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <nav class="sidebar">
+    <button id="openSidebarBtn">&#9776; Menu</button>
+
+    <nav class="sidebar" id="sidebar">
+        <button id="closeSidebarBtn">&times;</button>
         <h2>ContabiLAB</h2>
         <a href="/" class="{% if request.path == '/' %}active{% endif %}">Início</a>
         <a href="/calculadora" class="{% if request.path == '/calculadora' %}active{% endif %}">Simulador HP12C</a>
     </nav>
-    <main class="content">
+
+    <main class="content" id="content">
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+        const content = document.getElementById('content');
+
+        openBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            content.classList.add('dimmed');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            content.classList.remove('dimmed');
+        });
+
+        // Fecha sidebar se clicar fora dela (opcional)
+        content.addEventListener('click', () => {
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                content.classList.remove('dimmed');
+            }
+        });
+    </script>
 </body>
 
 </html>

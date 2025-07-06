@@ -1,117 +1,275 @@
-{% extends "base.html" %}
-{% block title %}Simulador HP12C - Contabilab{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="pt-BR">
 
-<h1>Simulador HP12C</h1>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simulador HP12C - Contabilab</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow-x: hidden;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+        }
 
-<form method="POST">
-    <label for="calc_what">Quero calcular:</label>
-    <select id="calc_what" name="calc_what" onchange="updateInputs()">
-        <option value="pv" {% if calc_what=='pv' %}selected{% endif %}>Valor Presente (PV)</option>
-        <option value="fv" {% if calc_what=='fv' %}selected{% endif %}>Valor Futuro (FV)</option>
-        <option value="pmt" {% if calc_what=='pmt' %}selected{% endif %}>Pagamento (PMT)</option>
-        <option value="i" {% if calc_what=='i' %}selected{% endif %}>Taxa de Juros (i)</option>
-        <option value="n" {% if calc_what=='n' %}selected{% endif %}>Períodos (n)</option>
-    </select>
+        /* Botão hamburger */
+        #openSidebarBtn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            width: 35px;
+            height: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 1200;
+            padding: 0;
+        }
 
-    <div id="label-pv"><label>PV:</label></div>
-    <input type="text" name="pv" id="pv" value="{{ pv }}" placeholder="..." />
+        #openSidebarBtn .bar {
+            height: 4px;
+            width: 100%;
+            background-color: #2c3e50;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
 
-    <div id="label-fv"><label>FV:</label></div>
-    <input type="text" name="fv" id="fv" value="{{ fv }}" placeholder="..." />
+        #openSidebarBtn:hover .bar {
+            background-color: #3498db;
+        }
 
-    <div id="label-pmt"><label>PMT:</label></div>
-    <input type="text" name="pmt" id="pmt" value="{{ pmt }}" placeholder="..." />
+        /* Sidebar */
+        nav.sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 0;
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            overflow-x: hidden;
+            padding-top: 60px;
+            box-sizing: border-box;
+            transition: width 0.3s ease;
+            z-index: 1100;
+        }
 
-    <div id="label-i"><label>i (% ao período):</label></div>
-    <input type="text" name="i" id="i" value="{{ i }}" placeholder="..." />
+        nav.sidebar.open {
+            width: 100vw;
+        }
 
-    <div id="label-n"><label>n:</label></div>
-    <input type="text" name="n" id="n" value="{{ n }}" placeholder="..." />
+        nav.sidebar h2 {
+            margin-top: 0;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
 
-    <button type="submit">Calcular</button>
-</form>
+        nav.sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+            font-size: 18px;
+        }
 
-{% if resultado %}
-<div class="resultado">
-    <strong>Resultado:</strong> {{ resultado }}
-</div>
-{% endif %}
+        nav.sidebar a:hover,
+        nav.sidebar a.active {
+            background-color: #3498db;
+        }
 
-<script>
-    function updateInputs() {
-        const calcWhat = document.getElementById('calc_what').value;
-        const camposPorCalculo = {
-            pv: ['fv', 'pmt', 'i', 'n'],
-            fv: ['pv', 'pmt', 'i', 'n'],
-            pmt: ['pv', 'fv', 'i', 'n'],
-            i: ['pv', 'fv', 'n'],  // PMT oculto
-            n: ['pv', 'fv', 'pmt', 'i']
-        };
-        const todosCampos = ['pv', 'fv', 'pmt', 'i', 'n'];
+        /* Botão fechar sidebar */
+        #closeSidebarBtn {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-        todosCampos.forEach(field => {
-            const label = document.getElementById('label-' + field);
-            const input = document.getElementById(field);
-            if (field === calcWhat) {
-                label.style.display = 'none';
-                input.style.display = 'none';
-                input.value = '';
-            } else if (camposPorCalculo[calcWhat].includes(field)) {
-                label.style.display = 'block';
-                input.style.display = 'block';
-            } else {
-                label.style.display = 'none';
-                input.style.display = 'none';
-                input.value = '';
+        /* Conteúdo */
+        main.content {
+            padding: 30px;
+            max-width: 400px;
+            margin: 80px auto 60px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: filter 0.3s ease;
+            user-select: auto;
+            pointer-events: auto;
+        }
+
+        main.content.dimmed {
+            filter: brightness(0.6);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        form {
+            max-width: 400px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: 600;
+            text-align: left;
+        }
+
+        input,
+        select,
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            background-color: #dff0d8;
+            padding: 15px;
+            border-radius: 10px;
+            color: #3c763d;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button id="openSidebarBtn" aria-label="Abrir menu" title="Abrir menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
+
+    <nav class="sidebar" id="sidebar">
+        <button id="closeSidebarBtn" aria-label="Fechar menu" title="Fechar menu">&times;</button>
+        <h2>ContabiLAB</h2>
+        <a href="/" class="active">Início</a>
+        <a href="/calculadora">Simulador HP12C</a>
+    </nav>
+
+    <main class="content" id="content">
+        <h1>Simulador HP12C</h1>
+
+        <form method="POST">
+            <label for="calc_what">Quero calcular:</label>
+            <select id="calc_what" name="calc_what" onchange="updateInputs()">
+                <option value="pv">Valor Presente (PV)</option>
+                <option value="fv">Valor Futuro (FV)</option>
+                <option value="pmt">Pagamento (PMT)</option>
+                <option value="i">Taxa de Juros (i)</option>
+                <option value="n">Períodos (n)</option>
+            </select>
+
+            <div id="label-pv"><label>PV:</label></div>
+            <input type="text" name="pv" id="pv" placeholder="..." />
+
+            <div id="label-fv"><label>FV:</label></div>
+            <input type="text" name="fv" id="fv" placeholder="..." />
+
+            <div id="label-pmt"><label>PMT:</label></div>
+            <input type="text" name="pmt" id="pmt" placeholder="..." />
+
+            <div id="label-i"><label>i (% ao período):</label></div>
+            <input type="text" name="i" id="i" placeholder="..." />
+
+            <div id="label-n"><label>n:</label></div>
+            <input type="text" name="n" id="n" placeholder="..." />
+
+            <button type="submit">Calcular</button>
+        </form>
+
+        <div class="resultado" id="resultado" style="display:none;">
+            <strong>Resultado:</strong> <span id="resultado-text"></span>
+        </div>
+    </main>
+
+    <script>
+        // Abrir e fechar sidebar
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+        const content = document.getElementById('content');
+
+        openBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            content.classList.add('dimmed');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            content.classList.remove('dimmed');
+        });
+
+        content.addEventListener('click', () => {
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                content.classList.remove('dimmed');
             }
         });
-    }
 
-    document.addEventListener('DOMContentLoaded', updateInputs);
-</script>
+        // Atualiza os campos exibidos conforme o que quer calcular
+        function updateInputs() {
+            const calcWhat = document.getElementById('calc_what').value;
+            const camposPorCalculo = {
+                pv: ['fv', 'pmt', 'i', 'n'],
+                fv: ['pv', 'pmt', 'i', 'n'],
+                pmt: ['pv', 'fv', 'i', 'n'],
+                i: ['pv', 'fv', 'n'],  // PMT oculto
+                n: ['pv', 'fv', 'pmt', 'i']
+            };
+            const todosCampos = ['pv', 'fv', 'pmt', 'i', 'n'];
 
-<style>
-    form {
-        max-width: 400px;
-        margin-top: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
+            todosCampos.forEach(field => {
+                const label = document.getElementById('label-' + field);
+                const input = document.getElementById(field);
+                if (field === calcWhat) {
+                    label.style.display = 'none';
+                    input.style.display = 'none';
+                    input.value = '';
+                } else if (camposPorCalculo[calcWhat].includes(field)) {
+                    label.style.display = 'block';
+                    input.style.display = 'block';
+                } else {
+                    label.style.display = 'none';
+                    input.style.display = 'none';
+                    input.value = '';
+                }
+            });
+        }
 
-    label {
-        font-weight: 600;
-    }
+        document.addEventListener('DOMContentLoaded', updateInputs);
+    </script>
 
-    input,
-    select,
-    button {
-        padding: 10px;
-        font-size: 16px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-    }
+</body>
 
-    button {
-        background-color: #3498db;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-        background-color: #2980b9;
-    }
-
-    .resultado {
-        margin-top: 20px;
-        background-color: #dff0d8;
-        padding: 15px;
-        border-radius: 10px;
-        color: #3c763d;
-        font-size: 18px;
-    }
-</style>
-
-{% endblock %}
+</html>

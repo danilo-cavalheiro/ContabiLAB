@@ -1,54 +1,192 @@
-{% extends "base.html" %}
-{% block title %}Início - ContabiLAB{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="pt-BR">
 
-<div class="page-header">
-    <img src="{{ url_for('static', filename='img/header-image.jpg') }}" alt="Contabilab" />
-</div>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Início - ContabiLAB</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow-x: hidden;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+        }
 
-<div class="container">
-    <h1>Bem-vindo ao ContabiLAB!</h1>
-    <p>Este site agora possui um simulador da HP12C para cálculos financeiros, facilitando seus estudos e aplicações na
-        área Contábil 🤠.
-    </p>
-    <p>Use a barra lateral para acessar o simulador e experimentar todas as funcionalidades.</p>
-</div>
+        /* Botão hamburger */
+        #openSidebarBtn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            width: 35px;
+            height: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 1200;
+            padding: 0;
+        }
 
-<style>
-    .page-header {
-        max-width: 400px;
-        width: 100%;
-        margin: 40px auto 0;
-        text-align: center;
-    }
+        #openSidebarBtn .bar {
+            height: 4px;
+            width: 100%;
+            background-color: #2c3e50;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
 
-    .page-header img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 12px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    }
+        #openSidebarBtn:hover .bar {
+            background-color: #3498db;
+        }
 
-    .container {
-        max-width: 400px;
-        background-color: white;
-        margin: 30px auto 60px;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
+        /* Sidebar */
+        nav.sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 0;
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            overflow-x: hidden;
+            padding-top: 60px;
+            box-sizing: border-box;
+            transition: width 0.3s ease;
+            z-index: 1100;
+        }
 
-    h1 {
-        color: #2c3e50;
-        margin-bottom: 20px;
-    }
+        nav.sidebar.open {
+            width: 100vw;
+        }
 
-    p {
-        color: #34495e;
-        font-size: 16px;
-        line-height: 1.5;
-    }
-</style>
+        nav.sidebar h2 {
+            margin-top: 0;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
 
-{% endblock %}
+        nav.sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+            font-size: 18px;
+        }
+
+        nav.sidebar a:hover,
+        nav.sidebar a.active {
+            background-color: #3498db;
+        }
+
+        /* Botão fechar sidebar */
+        #closeSidebarBtn {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Conteúdo */
+        main.content {
+            padding: 30px;
+            max-width: 400px;
+            margin: 80px auto 60px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: filter 0.3s ease;
+            user-select: auto;
+            pointer-events: auto;
+        }
+
+        main.content.dimmed {
+            filter: brightness(0.6);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .page-header img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #34495e;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="openSidebarBtn" aria-label="Abrir menu" title="Abrir menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
+
+    <nav class="sidebar" id="sidebar">
+        <button id="closeSidebarBtn" aria-label="Fechar menu" title="Fechar menu">&times;</button>
+        <h2>ContabiLAB</h2>
+        <a href="/" class="active">Início</a>
+        <a href="/calculadora">Simulador HP12C</a>
+    </nav>
+
+    <main class="content" id="content">
+        <div class="page-header">
+            <img src="static/img/header-image.jpg" alt="Contabilab" />
+        </div>
+
+        <h1>Bem-vindo ao ContabiLAB!</h1>
+        <p>Este site agora possui um simulador da HP12C para cálculos financeiros, facilitando seus estudos e aplicações
+            na área Contábil 🤠.</p>
+        <p>Use a barra lateral para acessar o simulador e experimentar todas as funcionalidades.</p>
+    </main>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+        const content = document.getElementById('content');
+
+        openBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            content.classList.add('dimmed');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            content.classList.remove('dimmed');
+        });
+
+        // Fecha sidebar ao clicar no conteúdo (opcional)
+        content.addEventListener('click', () => {
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                content.classList.remove('dimmed');
+            }
+        });
+    </script>
+</body>
+
+</html>
