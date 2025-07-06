@@ -4,33 +4,38 @@ import locale
 
 app = Flask(__name__)
 
-# Configurar locale para português do Brasil
+# Configurar locale para pt_BR
 try:
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 except locale.Error:
-    # Se no Windows ou sistema não reconhecer pt_BR.UTF-8, tentar outro padrão
     locale.setlocale(locale.LC_ALL, '')
 
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+def to_float_zero(s):
+    s = s.replace(',', '.') if s else ''
+    try:
+        return float(s) if s else 0.0
+    except:
+        return 0.0
+
+
+def format_brl(value, decimals=2):
+    try:
+        return locale.format_string(f"%.{decimals}f", value, grouping=True)
+    except:
+        return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
+@app.route("/calculadora", methods=["GET", "POST"])
+def calculadora():
     resultado = None
     pv = fv = pmt = i = n = 0.0
-    calc_what = "pv"  # padrão
-
-    def to_float_zero(s):
-        s = s.replace(',', '.') if s else ''
-        try:
-            return float(s) if s else 0.0
-        except:
-            return 0.0
-
-    def format_brl(value, decimals=2):
-        try:
-            return locale.format_string(f"%.{decimals}f", value, grouping=True)
-        except:
-            # fallback simples
-            return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    calc_what = "pv"
 
     if request.method == "POST":
         calc_what = request.form.get('calc_what', 'pv')
@@ -38,8 +43,7 @@ def index():
         pv = to_float_zero(request.form.get('pv', ''))
         fv = to_float_zero(request.form.get('fv', ''))
         pmt = to_float_zero(request.form.get('pmt', ''))
-        i = to_float_zero(request.form.get('i', '')) / \
-            100  # converte para decimal
+        i = to_float_zero(request.form.get('i', '')) / 100
         n = to_float_zero(request.form.get('n', ''))
 
         if i is None:
@@ -107,11 +111,10 @@ def index():
         if v is None or v == 0:
             return ""
         if isinstance(v, float):
-            # Formatar para string no padrão brasileiro
             return format_brl(v, 4 if calc_what in ['i', 'n'] else 2)
         return str(v)
 
-    return render_template("index.html",
+    return render_template("calculadora.html",
                            resultado=resultado,
                            pv=to_str_or_blank(pv),
                            fv=to_str_or_blank(fv),

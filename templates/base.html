@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Contabilab{% endblock %}</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        nav.sidebar {
+            background: #2c3e50;
+            color: white;
+            width: 220px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        nav.sidebar h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        nav.sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        nav.sidebar a:hover,
+        nav.sidebar a.active {
+            background-color: #3498db;
+        }
+
+        main.content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="sidebar">
+        <h2>ContabiLAB</h2>
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Início</a>
+        <a href="/calculadora" class="{% if request.path == '/calculadora' %}active{% endif %}">Simulador HP12C</a>
+    </nav>
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+
+</html>

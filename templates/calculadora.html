@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Simulador HP12C - Contabilab{% endblock %}
+{% block content %}
+
+<h1>Simulador HP12C</h1>
+
+<form method="POST">
+    <label for="calc_what">Quero calcular:</label>
+    <select id="calc_what" name="calc_what" onchange="updateInputs()">
+        <option value="pv" {% if calc_what=='pv' %}selected{% endif %}>Valor Presente (PV)</option>
+        <option value="fv" {% if calc_what=='fv' %}selected{% endif %}>Valor Futuro (FV)</option>
+        <option value="pmt" {% if calc_what=='pmt' %}selected{% endif %}>Pagamento (PMT)</option>
+        <option value="i" {% if calc_what=='i' %}selected{% endif %}>Taxa de Juros (i)</option>
+        <option value="n" {% if calc_what=='n' %}selected{% endif %}>Períodos (n)</option>
+    </select>
+
+    <div id="label-pv"><label>PV:</label></div>
+    <input type="text" name="pv" id="pv" value="{{ pv }}" placeholder="..." />
+
+    <div id="label-fv"><label>FV:</label></div>
+    <input type="text" name="fv" id="fv" value="{{ fv }}" placeholder="..." />
+
+    <div id="label-pmt"><label>PMT:</label></div>
+    <input type="text" name="pmt" id="pmt" value="{{ pmt }}" placeholder="..." />
+
+    <div id="label-i"><label>i (% ao período):</label></div>
+    <input type="text" name="i" id="i" value="{{ i }}" placeholder="..." />
+
+    <div id="label-n"><label>n:</label></div>
+    <input type="text" name="n" id="n" value="{{ n }}" placeholder="..." />
+
+    <button type="submit">Calcular</button>
+</form>
+
+{% if resultado %}
+<div class="resultado">
+    <strong>Resultado:</strong> {{ resultado }}
+</div>
+{% endif %}
+
+<script>
+    function updateInputs() {
+        const calcWhat = document.getElementById('calc_what').value;
+        const camposPorCalculo = {
+            pv: ['fv', 'pmt', 'i', 'n'],
+            fv: ['pv', 'pmt', 'i', 'n'],
+            pmt: ['pv', 'fv', 'i', 'n'],
+            i: ['pv', 'fv', 'n'],  // PMT oculto
+            n: ['pv', 'fv', 'pmt', 'i']
+        };
+        const todosCampos = ['pv', 'fv', 'pmt', 'i', 'n'];
+
+        todosCampos.forEach(field => {
+            const label = document.getElementById('label-' + field);
+            const input = document.getElementById(field);
+            if (field === calcWhat) {
+                label.style.display = 'none';
+                input.style.display = 'none';
+                input.value = '';
+            } else if (camposPorCalculo[calcWhat].includes(field)) {
+                label.style.display = 'block';
+                input.style.display = 'block';
+            } else {
+                label.style.display = 'none';
+                input.style.display = 'none';
+                input.value = '';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', updateInputs);
+</script>
+
+<style>
+    form {
+        max-width: 400px;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    label {
+        font-weight: 600;
+    }
+
+    input,
+    select,
+    button {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        background-color: #3498db;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #2980b9;
+    }
+
+    .resultado {
+        margin-top: 20px;
+        background-color: #dff0d8;
+        padding: 15px;
+        border-radius: 10px;
+        color: #3c763d;
+        font-size: 18px;
+    }
+</style>
+
+{% endblock %}
