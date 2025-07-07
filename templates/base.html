@@ -13,7 +13,6 @@
             overflow-x: hidden;
         }
 
-        /* Botão para abrir sidebar */
         #openSidebarBtn {
             position: fixed;
             top: 15px;
@@ -33,13 +32,10 @@
             left: 0;
             height: 100vh;
             width: 0;
-            /* Inicialmente fechada */
             background: rgba(44, 62, 80, 0.95);
-            /* cor escura com opacidade */
             color: white;
             overflow-x: hidden;
             padding-top: 60px;
-            /* espaço para botão */
             box-sizing: border-box;
             transition: width 0.3s ease;
             z-index: 1000;
@@ -47,7 +43,6 @@
 
         nav.sidebar.open {
             width: 100vw;
-            /* cobre a tela inteira */
         }
 
         nav.sidebar h2 {
@@ -79,15 +74,12 @@
             min-height: 100vh;
         }
 
-        /* Ao abrir sidebar, deixa conteúdo com filtro escurecido */
         main.content.dimmed {
             filter: brightness(0.6);
             pointer-events: none;
-            /* opcional para evitar interação */
             user-select: none;
         }
 
-        /* Botão para fechar dentro da sidebar */
         #closeSidebarBtn {
             position: absolute;
             top: 15px;
@@ -101,8 +93,6 @@
         }
 
         @media (min-width: 768px) {
-
-            /* Em telas maiores, pode manter sidebar fixa e visível */
             nav.sidebar {
                 position: relative;
                 width: 220px !important;
@@ -135,6 +125,8 @@
         <h2>ContabiLAB</h2>
         <a href="/" class="{% if request.path == '/' %}active{% endif %}">Início</a>
         <a href="/calculadora" class="{% if request.path == '/calculadora' %}active{% endif %}">Simulador HP12C</a>
+        <a href="/depreciacao" class="{% if request.path == '/depreciacao' %}active{% endif %}">Calculadora de
+            Depreciação</a>
     </nav>
 
     <main class="content" id="content">
@@ -157,7 +149,6 @@
             content.classList.remove('dimmed');
         });
 
-        // Fecha sidebar se clicar fora dela (opcional)
         content.addEventListener('click', () => {
             if (sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');

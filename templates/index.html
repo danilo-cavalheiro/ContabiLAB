@@ -6,12 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Início - ContabiLAB</title>
     <style>
+        /* Reset básico */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            overflow-x: hidden;
+            min-height: 100vh;
             background: linear-gradient(to right, #e0eafc, #cfdef3);
+            color: #2c3e50;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Botão hamburger */
@@ -98,18 +105,43 @@
             font-weight: bold;
         }
 
-        /* Conteúdo */
+        /* Imagem header (banner topo) */
+        .page-header {
+            width: 100%;
+            height: 280px;
+            /* altura tipo banner LinkedIn */
+            overflow: hidden;
+            position: relative;
+            background-color: #dce6f0;
+            /* fallback */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* cobre todo espaço, mantendo proporção */
+            object-position: center;
+            display: block;
+        }
+
+        /* Conteúdo principal */
         main.content {
-            padding: 30px;
-            max-width: 400px;
-            margin: 80px auto 60px;
+            max-width: 900px;
+            margin: 40px auto 60px;
+            padding: 20px;
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: filter 0.3s ease;
             user-select: auto;
             pointer-events: auto;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
         }
 
         main.content.dimmed {
@@ -118,22 +150,80 @@
             user-select: none;
         }
 
-        .page-header img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
+        main.content h1 {
+            font-size: 2.2rem;
+            margin: 0;
             color: #2c3e50;
-            margin-bottom: 20px;
         }
 
-        p {
+        main.content p {
+            font-size: 1.1rem;
             color: #34495e;
-            font-size: 16px;
             line-height: 1.5;
+            margin: 0;
+            max-width: 600px;
+        }
+
+        /* Botões */
+        .button-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+            user-select: none;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            flex: 1 1 150px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .btn:hover {
+            background-color: #217dbb;
+            box-shadow: 0 6px 12px rgba(33, 125, 187, 0.5);
+        }
+
+        /* Responsividade */
+
+        @media (max-width: 768px) {
+            main.content {
+                margin: 20px 15px 40px;
+                padding: 15px;
+            }
+
+            main.content h1 {
+                font-size: 1.8rem;
+            }
+
+            main.content p {
+                font-size: 1rem;
+                max-width: 100%;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 15px;
+                max-width: 100%;
+            }
+
+            .btn {
+                flex: none;
+                width: 100%;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -150,17 +240,23 @@
         <h2>ContabiLAB</h2>
         <a href="/" class="active">Início</a>
         <a href="/calculadora">Simulador HP12C</a>
+        <a href="/depreciacao">Calculadora de Depreciação</a>
     </nav>
 
-    <main class="content" id="content">
-        <div class="page-header">
-            <img src="static/img/header-image.jpg" alt="Contabilab" />
-        </div>
+    <header class="page-header">
+        <img src="static/img/header-image.jpg" alt="Banner ContabiLAB" />
+    </header>
 
+    <main class="content" id="content">
         <h1>Bem-vindo ao ContabiLAB!</h1>
-        <p>Este site agora possui um simulador da HP12C para cálculos financeiros, facilitando seus estudos e aplicações
-            na área Contábil 🤠.</p>
-        <p>Use o menu lateral para acessar o simulador e experimentar todas as funcionalidades.</p>
+        <p>Site em desenvolvimento!</p>
+        <p>Focado em ferramentas úteis para estudantes de Ciências Contábeis 🤠.</p>
+        <p>Use o menu lateral ou os botões abaixo para testar nossas funcionalidades.</p>
+
+        <div class="button-group">
+            <a href="/calculadora" class="btn">Simulador HP12C</a>
+            <a href="/depreciacao" class="btn">Calculadora de Depreciação</a>
+        </div>
     </main>
 
     <script>
