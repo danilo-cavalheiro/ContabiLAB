@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import math
 import locale
+import requests
 
 app = Flask(__name__)
 
@@ -31,12 +32,13 @@ def format_brl(value, decimals=2):
     try:
         return locale.format_string(f"%.{decimals}f", value, grouping=True)
     except:
-        return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{value:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    # Aqui é a página inicial, mostrar botão hamburguer
+    return render_template("index.html", is_tool=False)
 
 
 @app.route("/calculadora", methods=["GET", "POST"])
@@ -155,7 +157,8 @@ def calculadora():
                            calc_what=calc_what,
                            tem_entrada=tem_entrada,
                            entrada=to_str_or_blank(entrada),
-                           tabela=tabela)
+                           tabela=tabela,
+                           is_tool=True)  # <-- Aqui!
 
 
 @app.route("/depreciacao", methods=["GET", "POST"])
@@ -198,7 +201,56 @@ def depreciacao():
                            valor_residual=request.form.get(
                                'valor_residual', ''),
                            vida_util=request.form.get('vida_util', ''),
-                           consumo=request.form.get('consumo', ''))
+                           consumo=request.form.get('consumo', ''),
+                           is_tool=True)  # <-- Aqui!
+
+
+@app.route("/cambio", methods=["GET", "POST"])
+def cambio():
+    resultado = None
+    valor = None
+    moeda_origem = None
+    moeda_destino = None
+    erro = None
+
+    if request.method == "POST":
+        try:
+            valor = float(request.form.get("valor", "0").replace(',', '.'))
+            moeda_origem = request.form.get("moeda_origem", "USD").upper()
+            moeda_destino = request.form.get("moeda_destino", "BRL").upper()
+
+            # Sua chave da API ExchangeRate-API
+            API_KEY = "64172d2728696ea20bdb861c"
+            url = f"https://v6.exchangerate-api.com/v6/{API_KEY}/latest/{moeda_origem}"
+
+            response = requests.get(url)
+            data = response.json()
+
+            if data["result"] == "success":
+                taxas = data["conversion_rates"]
+                if moeda_destino in taxas:
+                    taxa = taxas[moeda_destino]
+                    valor_convertido = valor * taxa
+                    resultado = f"{valor:.2f} {moeda_origem} = {valor_convertido:.2f} {moeda_destino}"
+                else:
+                    erro = f"Moeda destino '{moeda_destino}' não suportada."
+            else:
+                erro = "Erro ao consultar a API de câmbio."
+
+        except Exception as e:
+            erro = f"Erro: {str(e)}"
+
+    moedas = ["USD", "BRL", "EUR", "GBP", "JPY",
+              "AUD", "CAD", "CHF", "CNY", "INR"]
+
+    return render_template("cambio.html",
+                           resultado=resultado,
+                           valor=valor if valor is not None else "",
+                           moeda_origem=moeda_origem if moeda_origem else "USD",
+                           moeda_destino=moeda_destino if moeda_destino else "BRL",
+                           erro=erro,
+                           moedas=moedas,
+                           is_tool=True)  # <-- Aqui!
 
 
 if __name__ == "__main__":

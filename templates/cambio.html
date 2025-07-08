@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Conversor de Câmbio - ContabiLAB</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <style>
+        /* Estilos básicos reaproveitados da home */
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #217dbb;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .erro {
+            color: red;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Botão casinha fixo */
+
+        #homeBtn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            font-size: 30px;
+            color: #2c3e50;
+            text-decoration: none;
+            z-index: 1200;
+            user-select: none;
+        }
+
+        #homeBtn:hover {
+            color: #3498db;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Botão casinha com SVG -->
+    <a href="/" id="homeBtn" title="Voltar para a página inicial" aria-label="Página Inicial"
+        style="position: fixed; top: 10px; left: 10px; z-index: 1200; user-select: none; text-decoration: none; display: flex; align-items: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"
+            style="fill: #2c3e50; transition: fill 0.3s;">
+            <path d="m12 5.69 5 4.5V18h-2v-6H9v6H7v-7.81zM12 3L2 12h3v8h6v-6h2v6h6v-8h3" />
+        </svg>
+    </a>
+
+    <style>
+        #homeBtn:hover svg {
+            fill: #3498db;
+        }
+    </style>
+
+
+    <div class="container">
+        <h1>Conversor de Câmbio</h1>
+
+        <form method="POST">
+            <input type="text" name="valor" placeholder="Valor a converter" required value="{{ valor or '' }}">
+            <select name="moeda_origem">
+                {% for moeda in moedas %}
+                <option value="{{ moeda }}" {% if moeda==moeda_origem %}selected{% endif %}>{{ moeda }}</option>
+                {% endfor %}
+            </select>
+            <select name="moeda_destino">
+                {% for moeda in moedas %}
+                <option value="{{ moeda }}" {% if moeda==moeda_destino %}selected{% endif %}>{{ moeda }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Converter</button>
+        </form>
+
+        {% if resultado %}
+        <div class="resultado">{{ resultado }}</div>
+        {% endif %}
+
+        {% if erro %}
+        <div class="erro">{{ erro }}</div>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>

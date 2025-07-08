@@ -14,88 +14,20 @@
             background: linear-gradient(to right, #e0eafc, #cfdef3);
         }
 
-        /* Botão hamburger */
-        #openSidebarBtn {
+        /* Botão casinha */
+        #homeBtn {
             position: fixed;
             top: 15px;
             left: 15px;
-            width: 35px;
-            height: 28px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 1200;
-            padding: 0;
-        }
-
-        #openSidebarBtn .bar {
-            height: 4px;
-            width: 100%;
-            background-color: #2c3e50;
-            border-radius: 3px;
-            transition: background-color 0.3s;
-        }
-
-        #openSidebarBtn:hover .bar {
-            background-color: #3498db;
-        }
-
-        /* Sidebar */
-        nav.sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 0;
-            background: rgba(44, 62, 80, 0.95);
-            color: white;
-            overflow-x: hidden;
-            padding-top: 60px;
-            box-sizing: border-box;
-            transition: width 0.3s ease;
-            z-index: 1100;
-        }
-
-        nav.sidebar.open {
-            width: 100vw;
-        }
-
-        nav.sidebar h2 {
-            margin-top: 0;
-            margin-left: 20px;
-            margin-bottom: 20px;
-        }
-
-        nav.sidebar a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            transition: background-color 0.3s;
-            font-size: 18px;
-        }
-
-        nav.sidebar a:hover,
-        nav.sidebar a.active {
-            background-color: #3498db;
-        }
-
-        /* Botão fechar sidebar */
-        #closeSidebarBtn {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            background: none;
-            border: none;
-            color: white;
             font-size: 30px;
-            cursor: pointer;
-            font-weight: bold;
+            color: #2c3e50;
+            text-decoration: none;
+            z-index: 1200;
+            user-select: none;
+        }
+
+        #homeBtn:hover {
+            color: #3498db;
         }
 
         /* Conteúdo principal */
@@ -191,21 +123,20 @@
 
 <body>
 
-    <!-- Botão Hamburger -->
-    <button id="openSidebarBtn" aria-label="Abrir menu" title="Abrir menu">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-    </button>
+    <!-- Botão casinha com SVG -->
+    <a href="/" id="homeBtn" title="Voltar para a página inicial" aria-label="Página Inicial"
+        style="position: fixed; top: 10px; left: 10px; z-index: 1200; user-select: none; text-decoration: none; display: flex; align-items: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"
+            style="fill: #2c3e50; transition: fill 0.3s;">
+            <path d="m12 5.69 5 4.5V18h-2v-6H9v6H7v-7.81zM12 3L2 12h3v8h6v-6h2v6h6v-8h3" />
+        </svg>
+    </a>
 
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <button id="closeSidebarBtn" aria-label="Fechar menu" title="Fechar menu">&times;</button>
-        <h2>ContabiLAB</h2>
-        <a href="/">Início</a>
-        <a href="/calculadora">Simulador HP12C</a>
-        <a href="/depreciacao" class="active">Calculadora Depreciação</a>
-    </nav>
+    <style>
+        #homeBtn:hover svg {
+            fill: #3498db;
+        }
+    </style>
 
     <main class="content" id="content">
         <h1>Calculadora de Depreciação</h1>
@@ -262,31 +193,6 @@
         {% endif %}
     </main>
 
-    <script>
-        // Mesma lógica do menu lateral da outra página
-
-        const sidebar = document.getElementById('sidebar');
-        const openBtn = document.getElementById('openSidebarBtn');
-        const closeBtn = document.getElementById('closeSidebarBtn');
-        const content = document.getElementById('content');
-
-        openBtn.addEventListener('click', () => {
-            sidebar.classList.add('open');
-            content.classList.add('dimmed');
-        });
-
-        closeBtn.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            content.classList.remove('dimmed');
-        });
-
-        content.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                content.classList.remove('dimmed');
-            }
-        });
-    </script>
 </body>
 
 </html>
